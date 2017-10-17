@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from copy import deepcopy
 from math import pow
+from time import clock
 
 count = 0
 
@@ -32,10 +33,10 @@ class Point:
         self.col = col
 
 
-# def printM(m):
-#     print
-#     for x in m:
-#         print x
+def printM(m):
+    print
+    for x in m:
+        print x
 
 
 def readfile(filename):
@@ -70,8 +71,8 @@ def write_output(letter, number, matrix, time):
     file_output.write(letter)
     file_output.write(number)
     file_output.write("\n")
-    # file_output.write(str(time))
-    # file_output.write("\n")
+    file_output.write(str(time))
+    file_output.write("\n")
     # printM(matrix)
     for x in matrix:
         for a in x:
@@ -235,7 +236,7 @@ def max_value(node, alpha, beta, cut):
         return r
     if node.depth >= cut:
         return r
-    v = -9000
+    v = -900
     i = 0
     s = len(acts)
     # print len(acts)
@@ -248,10 +249,8 @@ def max_value(node, alpha, beta, cut):
             r = ns
 
         alpha = max(alpha, v)
-        if beta <= alpha:
+        if i > float(s) * 0.9:
             return r
-            # if i > float(s) * 0.9:
-            #     return r
     return r
 
 
@@ -262,7 +261,7 @@ def min_value(node, alpha, beta, cut):
         return r
     if node.depth >= cut:
         return r
-    v = 9000
+    v = 900
     i = 0
     s = len(acts)
     for a in acts:
@@ -272,12 +271,16 @@ def min_value(node, alpha, beta, cut):
         if ns.score < v:
             v = ns.score
             r = ns
+
         beta = min(beta, v)
-        if beta <= alpha:
+        if i > float(s) * 0.9:
             return r
-            # if i > float(s) * 0.9:
-            #     return r
     return r
+
+
+def printR(node):
+    print 'Score:' + str(node.score)
+    print "Move: " + node.action
 
 
 def search(node, cut):
@@ -295,53 +298,53 @@ def what_cut(time, n):
 
     if n == 1 or n == 2:
         if time <= 0.2:
-            return 5
-        return 20
+            return 3
+        return 3
     elif n == 3:
         if time <= 0.2:
-            return 4
-        return 20
+            return 3
+        return 3
     elif n == 4:
         if time <= 0.8:
             return 3
         elif time <= 1:
-            return 6
+            return 3
         elif time <= 2:
-            return 18
-        return 20
+            return 3
+        return 3
     elif n == 5:
         if time <= 0.8:
             return 2
         elif 0.8 < time <= 5:
             return 3
         elif 5 < time <= 30:
-            return 5
+            return 3
         elif 30 < time <= 250:
-            return 7
+            return 3
         else:
-            return 8
+            return 3
     elif n == 6:
         if time <= 0.8:
             return 2
         elif 0.8 < time <= 5:
-            return 4
+            return 3
         elif 5 < time <= 30:
-            return 5
+            return 3
         elif 30 < time <= 200:
-            return 6
+            return 3
         elif 200 < time <= 280:
-            return 7
+            return 3
         else:
-            return 8
+            return 3
     elif n == 7:
         if time <= 0.8:
             return 1
         elif 0.8 < time <= 5:
             return 2
         elif 5 < time <= 30:
-            return 4
+            return 3
         else:
-            return 5
+            return 3
     elif n == 8:
         if time <= 0.8:
             return 1
@@ -350,23 +353,23 @@ def what_cut(time, n):
         elif 5 < time <= 30:
             return 3
         elif time >= 280:
-            return 5
+            return 3
         else:
-            return 4
+            return 3
     elif n == 9:
         if time <= 0.8:
             return 0
         elif 0.8 < time < 30:
             return 2
         else:
-            return 4
+            return 3
     elif n == 10:
         if time <= 0.8:
             return 0
         elif 0.8 < time < 30:
             return 2
         elif time >= 150:
-            return 4
+            return 3
         else:
             return 3
     elif n == 11:
@@ -377,7 +380,7 @@ def what_cut(time, n):
         elif 5 < time <= 30:
             return 2
         elif time >= 250:
-            return 4
+            return 3
         else:
             return 3
     elif n == 12:
@@ -392,7 +395,7 @@ def what_cut(time, n):
     elif n == 13 or n == 14 or n == 15:
         if time <= 0.8:
             return 0
-        elif 0.8 < time < 10:
+        elif 0.8 < time < 5:
             return 1
         elif time >= 240:
             return 3
@@ -423,28 +426,31 @@ def what_cut(time, n):
         return 0
 
 
-init_param = readfile("input5.txt")
-cutoff = what_cut(init_param['time_left'], init_param['N'])
-initial_node = Node(init_param['board'], init_param['N'], None, init_param['P'], init_param['Pset'], 0, 0, None, set())
-if cutoff == 0:
-    ev = eval(initial_node)
-    initial_node.action = ev.point
-    initial_node.score = ev.max
-    initial_node.area = ev.area
-    p = extract_point(initial_node.action)
-    i = p.row
-    j = p.col
-    initial_node.state = gravity(initial_node, eval_area(i, j, initial_node.state, initial_node.n), initial_node.action,
-                                 1).state
-    v = initial_node
-else:
-    v = search(initial_node, cutoff)
-
-p = extract_point(v.action)
-i = p.row
-j = p.col
-letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-           'X', 'W', 'Y', 'Z']
-letter = letters[j]
-
-write_output(letter, str(i + 1), v.state, v.score)
+# t0 = clock()
+# init_param = readfile("input22.txt")
+# cutoff = what_cut(init_param['time_left'], init_param['N'])
+# initial_node = Node(init_param['board'], init_param['N'], None, init_param['P'], init_param['Pset'], 0, 0, None, set())
+# print cutoff
+# if cutoff == 0:
+#     ev = eval(initial_node)
+#     initial_node.action = ev.point
+#     initial_node.score = ev.max
+#     initial_node.area = ev.area
+#     p = extract_point(initial_node.action)
+#     i = p.row
+#     j = p.col
+#     initial_node.state = gravity(initial_node, eval_area(i, j, initial_node.state, initial_node.n), initial_node.action,
+#                                  1).state
+#     v = initial_node
+# else:
+#     v = search(initial_node, cutoff)
+#
+# p = extract_point(v.action)
+# i = p.row
+# j = p.col
+# letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+#            'X', 'W', 'Y', 'Z']
+# letter = letters[j]
+#
+# write_output(letter, str(i + 1), v.state, v.score)
+#
